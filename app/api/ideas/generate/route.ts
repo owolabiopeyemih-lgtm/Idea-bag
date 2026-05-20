@@ -20,35 +20,54 @@ export async function POST(req: Request) {
 
     const rawIdeas = await generateIdeas(skillLevel, categories as never, count, surpriseMe);
 
-    const created = await prisma.$transaction(
-      rawIdeas.map((idea) =>
-        prisma.idea.create({
-          data: {
-            title: idea.title,
-            description: idea.description,
-            problemSolved: idea.problemSolved,
-            skillLevel: idea.skillLevel,
-            categories: s(idea.categories),
-            recommendedStack: s(idea.recommendedStack),
-            complexityScore: idea.complexityScore,
-            timeEstimate: idea.timeEstimate,
-            learningOutcomes: s(idea.learningOutcomes),
-            prerequisites: s(idea.prerequisites),
-            teamSize: idea.teamSize,
-            mvpScope: idea.mvpScope,
-            coreFeatures: s(idea.coreFeatures),
-            stretchGoals: s(idea.stretchGoals),
-            architecture: idea.architecture,
-            suggestedApis: s(idea.suggestedApis),
-            dbRecommendation: idea.dbRecommendation,
-            monetizationIdeas: s(idea.monetizationIdeas),
-          },
-        })
-      )
-    );
-
-    return NextResponse.json({ ideas: created.map(mapIdea) });
-  } catch (err: unknown) {
+    // Try to persist to DB — if unavailable, return ideas without saving
+    try {
+      const created = await prisma.$transaction(
+        rawIdeas.map((idea) =>
+          prisma.idea.create({
+            data: {
+              title: idea.title,
+              description: idea.description,
+              problemSolved: idea.problemSolved,
+              skillLevel: idea.skillLevel,
+              categories: s(idea.categories),
+              recommendedStack: s(idea.recommendedStack),
+              complexityScore: idea.complexityScore,
+              timeEstimate: idea.timeEstimate,
+              learningOutcomes: s(idea.learningOutcomes),
+              prerequisites: s(idea.prerequisites),
+              teamSize: idea.teamSize,
+              mvpScope: idea.mvpScope,
+              coreFeatures: s(idea.coreFeatures),
+              stretchGoals: s(idea.stretchGoals),
+              architecture: idea.architecture,
+              suggestedApis: s(idea.suggestedApis),
+              dbRecommendation: idea.dbRecommendation,
+              monetizationIdeas: s(idea.monetizationIdeas),
+            },
+          })
+        )
+      );
+      return NextResponse.json({ ideas: created.map(mapIdea) });
+    } catch (dbErr) {
+      console.warn("[/api/ideas/generate] DB unavailable — returning ideas without persistence:", dbErr);
+      // Return ideas with temp IDs so the UI still works
+      const fallback = rawIdeas.map((idea, i) => ({
+        id: `temp_${Date.now()}_${i}`,
+        ...idea,
+        categories: idea.categories ?? [],
+        recommendedStack: idea.recommendedStack ?? [],
+        learningOutcomes: idea.learningOutcomes ?? [],
+        prerequisites: idea.prerequisites ?? [],
+        coreFeatures: idea.coreFeatures ?? [],
+        stretchGoals: idea.stretchGoals ?? [],
+        suggestedApis: idea.suggestedApis ?? [],
+        monetizationIdeas: idea.monetizationIdeas ?? [],
+        createdAt: new Date().toISOString(),
+      }));
+      return NextResponse.json({ ideas: fallback });
+    }
+  } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues }, { status: 400 });
     }
