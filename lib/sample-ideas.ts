@@ -1,0 +1,145 @@
+import type { Idea, SkillLevel, Category } from "./types";
+
+const ALL_SAMPLES: Omit<Idea, "id" | "createdAt">[] = [
+  {
+    title: "Local Expense Splitter",
+    description: "A web app where groups of friends can log shared expenses and instantly see who owes whom. No sign-up required — just create a room with a link.",
+    problemSolved: "Splitting bills manually causes confusion and awkward conversations. This gives everyone a clear, live view of balances.",
+    skillLevel: "BEGINNER",
+    categories: ["Fullstack"],
+    recommendedStack: ["Next.js", "TypeScript", "Tailwind CSS", "localStorage"],
+    complexityScore: 2,
+    timeEstimate: "1–2 weeks",
+    learningOutcomes: ["State management", "CRUD operations", "Basic math logic", "Responsive layouts"],
+    prerequisites: ["HTML/CSS basics", "JavaScript fundamentals"],
+    teamSize: "Solo",
+    mvpScope: "Create a room, add members, log expenses, view a balance summary showing net amounts owed.",
+    coreFeatures: ["Room creation with shareable link", "Add/remove participants", "Log expense with payer and split", "Balance summary view", "Settle up button"],
+    stretchGoals: ["Export to CSV", "Email summary", "Dark mode"],
+    architecture: "Single Next.js app with client-side state. Persist to localStorage for simplicity.",
+    suggestedApis: ["None required for MVP"],
+    dbRecommendation: "localStorage for MVP — upgrade to SQLite/Postgres if you add persistence.",
+    monetizationIdeas: ["Freemium with room history limits", "One-time purchase for permanent rooms"],
+  },
+  {
+    title: "Dev Quote of the Day CLI",
+    description: "A terminal tool that greets developers with a motivational or humorous programming quote every time they open a new terminal session.",
+    problemSolved: "Terminal sessions are dull. This adds a moment of levity or inspiration to every dev's day.",
+    skillLevel: "BEGINNER",
+    categories: ["DevTools", "Automation"],
+    recommendedStack: ["Node.js", "TypeScript", "chalk", "figlet"],
+    complexityScore: 1,
+    timeEstimate: "2–3 days",
+    learningOutcomes: ["CLI tool development", "npm package publishing", "File I/O", "Shell profile scripting"],
+    prerequisites: ["JavaScript basics", "Terminal familiarity"],
+    teamSize: "Solo",
+    mvpScope: "A node script that prints a random quote from a local JSON file, styled with colour.",
+    coreFeatures: ["Random quote selection", "Coloured terminal output", "Category filtering flag (--funny, --deep)", "Shell integration via .zshrc/.bashrc"],
+    stretchGoals: ["Fetch quotes from an API", "Submit your own quote via PR", "Weekly streak tracking"],
+    architecture: "Single Node.js script installed globally via npm.",
+    suggestedApis: ["quotable.io (free, no key)"],
+    dbRecommendation: "JSON file — no database needed.",
+    monetizationIdeas: ["Sponsor slots in quote rotation", "Premium quote packs"],
+  },
+  {
+    title: "AI Code Review Bot for GitHub PRs",
+    description: "A GitHub Action that automatically reviews pull requests, spots common issues, suggests improvements, and posts inline comments — powered by an LLM.",
+    problemSolved: "Code reviews are time-consuming. This handles the tedious, pattern-based feedback so human reviewers can focus on architecture and logic.",
+    skillLevel: "INTERMEDIATE",
+    categories: ["DevTools", "AI/ML", "Automation"],
+    recommendedStack: ["Node.js", "TypeScript", "GitHub Actions", "OpenAI API", "Octokit"],
+    complexityScore: 5,
+    timeEstimate: "2–4 weeks",
+    learningOutcomes: ["GitHub Actions workflow authoring", "REST API integration", "Prompt engineering", "Webhooks & event-driven design"],
+    prerequisites: ["Git & GitHub fluency", "REST API experience", "Basic CI/CD knowledge"],
+    teamSize: "Solo or 2 devs",
+    mvpScope: "On every PR, diff the changed files, send to the LLM with context, and post a summary comment with key feedback.",
+    coreFeatures: ["Diff extraction per PR", "LLM review prompt with file context", "Inline PR comment posting", "Configurable severity levels", "Skip comment if no issues found"],
+    stretchGoals: ["Support GitLab", "Custom rule injection via config file", "Review score badge"],
+    architecture: "GitHub Action triggered on pull_request events. Node.js script calls the LLM and uses Octokit to post review comments.",
+    suggestedApis: ["GitHub REST API", "OpenAI API or Groq (free)"],
+    dbRecommendation: "No database needed — stateless per PR run.",
+    monetizationIdeas: ["GitHub Marketplace listing (paid tier)", "SaaS wrapper with dashboard and analytics"],
+  },
+  {
+    title: "Bookmark Digest — Weekly Email from Your Saved Links",
+    description: "Users paste links they save during the week. Every Sunday, the app emails them a clean digest with AI-generated summaries of each link.",
+    problemSolved: "Bookmarks are graveyards. People save links and never revisit them. A weekly digest forces a review loop.",
+    skillLevel: "INTERMEDIATE",
+    categories: ["SaaS", "AI/ML", "Automation"],
+    recommendedStack: ["Next.js", "PostgreSQL", "Prisma", "Resend", "OpenAI API"],
+    complexityScore: 6,
+    timeEstimate: "3–5 weeks",
+    learningOutcomes: ["Cron job scheduling", "Email delivery (Resend/Nodemailer)", "Web scraping & summarisation", "Background job queues"],
+    prerequisites: ["Full-stack web development", "Database design", "API integration"],
+    teamSize: "Solo or 2 devs",
+    mvpScope: "Users add links, the system fetches page content, summarises with AI, and sends a formatted weekly email.",
+    coreFeatures: ["Link submission form", "Background fetch & AI summary", "Weekly cron trigger", "HTML email template", "Unsubscribe link"],
+    stretchGoals: ["Browser extension to save links", "Tag-based digests", "Slack delivery option"],
+    architecture: "Next.js frontend, API routes for link submission, Vercel Cron for weekly trigger, Resend for email.",
+    suggestedApis: ["Resend (email)", "OpenAI / Groq (summarisation)", "Cheerio (HTML parsing)"],
+    dbRecommendation: "PostgreSQL with Prisma. Tables: users, links, digests.",
+    monetizationIdeas: ["₦2,500/mo for unlimited links", "Freemium with 10 links/week limit"],
+  },
+  {
+    title: "Distributed Task Queue from Scratch",
+    description: "Build a Redis-backed distributed task queue with worker processes, retries, dead-letter queues, and a real-time dashboard — without using Bull or BullMQ.",
+    problemSolved: "Most developers use task queues as black boxes. Building one from scratch reveals how distributed systems handle failures, concurrency, and backpressure.",
+    skillLevel: "SENIOR",
+    categories: ["Backend", "Systems"],
+    recommendedStack: ["Node.js", "TypeScript", "Redis", "React", "WebSockets"],
+    complexityScore: 8,
+    timeEstimate: "1–2 months",
+    learningOutcomes: ["Redis data structures (Lists, Sorted Sets, Pub/Sub)", "Worker concurrency & process isolation", "Retry strategies & exponential backoff", "Distributed locking", "Observability & metrics"],
+    prerequisites: ["Strong Node.js knowledge", "Redis fundamentals", "Understanding of event loops and concurrency"],
+    teamSize: "Solo or 2 devs",
+    mvpScope: "Producer API that enqueues jobs, worker processes that consume them, retry on failure with backoff, dead-letter queue for permanently failed jobs.",
+    coreFeatures: ["Job producer client library", "Multi-process worker pool", "Priority queues", "Retry with exponential backoff", "Dead-letter queue", "Real-time dashboard (WebSocket)"],
+    stretchGoals: ["Rate limiting per queue", "Scheduled/delayed jobs", "Horizontal worker scaling with lease locks"],
+    architecture: "Redis as the broker using RPOPLPUSH for atomic job claiming. Separate producer and worker Node processes. WebSocket server pushes job state updates to the dashboard.",
+    suggestedApis: ["Redis (ioredis)", "ws (WebSocket library)"],
+    dbRecommendation: "Redis as primary store for queue state. Optional: PostgreSQL for job history/audit log.",
+    monetizationIdeas: ["Open-source the core, sell hosted dashboard", "Managed queue-as-a-service"],
+  },
+  {
+    title: "Multi-Tenant SaaS Starter with Feature Flags",
+    description: "A production-ready SaaS boilerplate that includes multi-tenancy, per-tenant billing, role-based access control, and a feature flag system for gradual rollouts.",
+    problemSolved: "Every SaaS founder rebuilds the same plumbing. This starter eliminates months of setup and gets teams to product work immediately.",
+    skillLevel: "SENIOR",
+    categories: ["SaaS", "Fullstack", "Backend"],
+    recommendedStack: ["Next.js", "TypeScript", "PostgreSQL", "Prisma", "Stripe", "OpenFGA"],
+    complexityScore: 9,
+    timeEstimate: "2–3 months",
+    learningOutcomes: ["Multi-tenant data isolation strategies (row-level security)", "Stripe billing with metered usage", "Fine-grained authorisation (RBAC/ABAC)", "Feature flag architecture", "Webhook reliability patterns"],
+    prerequisites: ["Production full-stack experience", "Database design", "Stripe integration experience", "Understanding of security boundaries"],
+    teamSize: "2–3 developers",
+    mvpScope: "Organisation creation, member invite flow, Stripe subscription per org, role-based permissions, and a feature flag toggle per tenant.",
+    coreFeatures: ["Org creation & subdomain routing", "Invite-based member onboarding", "Stripe subscription with Webhook sync", "RBAC: owner / admin / member", "Feature flags with per-tenant overrides", "Audit log"],
+    stretchGoals: ["SSO via SAML", "Usage-based billing metering", "Self-serve plan upgrade/downgrade"],
+    architecture: "Next.js App Router with server components. Postgres with row-level security per tenant. OpenFGA for permission checks. Stripe webhooks synced to DB via idempotent handlers.",
+    suggestedApis: ["Stripe (billing)", "Resend (transactional email)", "OpenFGA (authorisation)", "LaunchDarkly or custom flags table"],
+    dbRecommendation: "PostgreSQL with row-level security. Schema: tenants, memberships, subscriptions, feature_flags, audit_logs.",
+    monetizationIdeas: ["Sell as a premium starter kit", "Offer as a hosted SaaS with white-label options"],
+  },
+];
+
+export function getSampleIdeas(
+  skillLevel: SkillLevel,
+  categories: Category[],
+  count: number,
+  surpriseMe: boolean
+): Omit<Idea, "id" | "createdAt">[] {
+  let pool = surpriseMe
+    ? ALL_SAMPLES
+    : ALL_SAMPLES.filter(
+        (idea) =>
+          idea.skillLevel === skillLevel &&
+          (categories.length === 0 || categories.some((c) => idea.categories.includes(c)))
+      );
+
+  if (pool.length === 0) pool = ALL_SAMPLES.filter((i) => i.skillLevel === skillLevel);
+  if (pool.length === 0) pool = ALL_SAMPLES;
+
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}

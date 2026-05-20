@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Idea {
+  id               String   @id @default(cuid())
+  title            String
+  description      String
+  problemSolved    String
+  skillLevel       String
+  categories       String
+  recommendedStack String
+  complexityScore  Int
+  timeEstimate     String
+  learningOutcomes String
+  prerequisites    String
+  teamSize         String
+  mvpScope         String?
+  coreFeatures     String
+  stretchGoals     String
+  architecture     String?
+  suggestedApis    String
+  dbRecommendation String?
+  monetizationIdeas String
+  createdAt        DateTime @default(now())
+}
